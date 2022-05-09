@@ -3,6 +3,36 @@ variable "cdirs_remote_access" {
   description = "List of CIDR blocks"
 }
 
+variable "name_load_balancer" {
+  type = string
+  description = "The name of the LB"
+}
+
+variable "name_target" {
+  type = string
+  description = "The name of the target group"
+}
+
+variable "name_target_https" {
+  type = string
+  description = "The name of the target group with protocol HTTPS"
+}
+
+variable "name_autoscaling" {
+  type = string
+  description = "The name of the auto scaling"
+}
+
+variable "max_size"{
+    description = "The maximum size of the Auto Scaling Group."
+    type = number
+}
+
+variable "min_size"{
+    description = "The minimum size of the Auto Scaling Group."
+    type = number
+}
+
 #-------------------------------------------------------------------
 # OPTIONAL VARIABLES
 #-------------------------------------------------------------------

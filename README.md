@@ -41,6 +41,12 @@ show terraform
 |amis|AMI to use for the instance|map|ami-026c8acd92718196b|Yes|
 |instance_type|Type of the instance|string|t2-micro|Yes|
 |port|Number of the port to security group|number|22|Yes|
+|name_load_balancer|The name of the LB|string|--|No|
+|name_target|The name of the target group|string|--|No|
+|name_target_https|The name of the target group with protocol HTTPS|string|--|No|
+|name_autoscaling|The name of the auto scaling|string|--|No|
+|max_size|The maximum size of the Auto Scaling Group|number|--|No|
+|min_size|The mainimum size of the Auto Scaling Group|number|--|No|
 
 ## Output
 

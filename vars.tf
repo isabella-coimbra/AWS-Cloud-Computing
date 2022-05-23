@@ -1,26 +1,36 @@
+variable "path" {
+  type = string
+  description = "Path in which to create the user."
+}
+
 variable "cdirs_remote_access" {
   type = list
-  description = "List of CIDR blocks"
+  description = "List of CIDR blocks."
+}
+
+variable "public_key" {
+  type = string
+  description = "The public key material."
 }
 
 variable "name_load_balancer" {
   type = string
-  description = "The name of the LB"
+  description = "The name of the LB."
 }
 
 variable "name_target" {
   type = string
-  description = "The name of the target group"
+  description = "The name of the target group."
 }
 
 variable "name_target_https" {
   type = string
-  description = "The name of the target group with protocol HTTPS"
+  description = "The name of the target group with protocol HTTPS."
 }
 
 variable "name_autoscaling" {
   type = string
-  description = "The name of the auto scaling"
+  description = "The name of the auto scaling."
 }
 
 variable "max_size"{
@@ -38,13 +48,13 @@ variable "min_size"{
 #-------------------------------------------------------------------
 
 variable "region"{
-    description = "Region of the instance"
+    description = "Region of the instance."
     type = string
     default = "us-east-1"
 }
 
 variable "amis" {
-    description = "AMI to use for the instance"
+    description = "AMI to use for the instance."
     type = map
     default = {
       "us-east-1" = "ami-026c8acd92718196b"
@@ -52,13 +62,7 @@ variable "amis" {
 }
 
 variable "instance_type"{
-    description = "Type of the instance"
+    description = "Type of the instance."
     type = string
     default = "t2-micro"
-}
-
-variable "port"{
-    description = "Number of the port to security group"
-    type = number
-    default = 22
 }

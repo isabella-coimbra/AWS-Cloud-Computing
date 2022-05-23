@@ -1,4 +1,52 @@
 #-------------------------------------------------------------------
+# CREATE IAM USER, GROUP AND GROUP POLICY
+#-------------------------------------------------------------------
+
+resource "aws_iam_user" "user" {
+  name = "admin"
+  path = var.path
+
+  tags = {
+    tag-key = "terraform"
+  }
+}
+
+resource "aws_iam_access_key" "key" {
+  user = aws_iam_user.user.name
+}
+
+resource "aws_iam_group" "admins" {
+  name = "admins"
+  path = var.path
+}
+
+resource "aws_iam_group_membership" "team" {
+  name = "tf-admin-group"
+
+  users = [
+    aws_iam_user.user.name
+  ]
+
+  group = aws_iam_group.admins.name
+}
+
+resource "aws_iam_group_policy" "admins_policy" {
+  name  = "admins_group_policy"
+  group = ws_iam_group.admins.name
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "Allow"
+        Effect = "*"
+        Resource = "*"
+      },
+    ]
+  })
+}
+
+#-------------------------------------------------------------------
 # CREATE BUCKET
 #-------------------------------------------------------------------
 
@@ -31,8 +79,8 @@ resource "aws_vpc" "main" {
 resource "aws_security_group" "access-ssh" {
   name          = "access-ssh"
   ingress {
-    from_port   = var.port
-    to_port     = var.port
+    from_port   = 22
+    to_port     = 443
     protocol    = "tcp"
     cidr_blocks = aws_vpc.main.cidr_block
   }
@@ -41,22 +89,55 @@ resource "aws_security_group" "access-ssh" {
   }
 }
 
+resource "aws_security_group" "access-http" {
+  name          = "access-http"
+  ingress {
+    from_port   = 8080
+    to_port     = 8080
+    protocol    = "tcp"
+    cidr_blocks = aws_vpc.main.cidr_block
+  }
+  tags = {
+    Name = "http"
+  }
+}
+
+resource "aws_security_group" "allow_tls" {
+  name        = "allow_tls"
+  description = "Allow TLS inbound traffic"
+
+  ingress {
+    from_port        = 443
+    to_port          = 443
+    protocol         = "tcp"
+    cidr_blocks      = ["0.0.0.0/0"]
+  }
+  tags = {
+    Name = "allow_tls"
+  }
+}
+
 #-------------------------------------------------------------------
-# CREATE AN INSTANCE
+# CREATE A KEY PAIR AND INSTANCE
 #-------------------------------------------------------------------
 
+resource "aws_key_pair" "admin" {
+  key_name   = "admin-key"
+  public_key = var.public_key
+}
+
 resource "aws_instance" "dev" {
-  count                  = 3
+  count                  = 1
   ami                    = var.amis["us-east-1"]
   instance_type          = var.instance_type
-  key_name               = "terraform-aws"
+  key_name               = aws_key_pair.admin.name
 
   tags  = {
     Name = "instance-dev-${count.index}"
   }
 
-  vpc_security_group_ids = aws_security_group.access-ssh.id
-  depends_on             = [aws_s3_bucket.dev, aws_dynamodb_table.dynamodb-dev]
+  vpc_security_group_ids = [aws_security_group.access-ssh.id, aws_security_group.access-http.id, aws_security_group.allow_tls.id]
+  depends_on             = [aws_s3_bucket.dev]
 }
 
 #-------------------------------------------------------------------
